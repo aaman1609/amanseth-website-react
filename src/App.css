@@ -1,57 +1,45 @@
 .App {
   text-align: center;
-  background-color: white;
-  min-height: 100vh;
-  font-size: calc(10px + 2vmin);
-  color: white;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  background-color: whitesmoke;
+  height: 100vh;
 }
 
-
-.login-global {
-    background-color: white;
-}
+.Controller {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    height: 86vh;
+    padding-left: 5%;
+    padding-right: 5%;
+  }
 
 .login-paper {
-    margin-top: 40%;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
 
-.dashboard-paper {
-    margin-top: 5%;
+.admin-button {
     display: flex;
-    flex-direction: columns;
-    align-items: center;
 }
 
-.avatar {
-    margin: 1;
-    background-color: white;
-}
-
-.login-form {
-    width: 100%;
-    margin-top: 1;
-}
-
-.login-submit {
-    margin: 3,0,2;
-}
-
-.login-submit1 {
-    margin: 3,0,2;
-}
 
 .login-grid {
+    height: 80vh;
+    width: 85vh;
+    padding-top: 25%;
+    padding-left: 15%;
+    padding-right: 15%;
+    padding-bottom: 15%;
     background-color: white;
     font-size: calc(10px + 2vmin);
     color: #282c34;
 }
 
-.login-paper {
-    padding: 3,2;
+.dashboard-grid {
+    max-height: 80vh;
+    background-color: rgb(92, 100, 74);
+    font-size: calc(10px + 2vmin);
+    color: #282c34;
 }

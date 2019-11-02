@@ -9,44 +9,59 @@ function domainCell(rowData) {
     return <Link color="inherit" href={rowData.domain} target="_blank" >{rowData.domain}</Link>;
 }
 
-function valueCell(value, showdecryptedText) {
+function userNameValueCell(props, rowData) {
+    if (rowData.isUserNameDecrypted === undefined) {
+        rowData.isUserNameDecrypted = !rowData.isUserNameDecrypted;
+        rowData.userName = props.encryptionManager.decryptAES(rowData.userName);
+    }
     return (
         <div >
-            <CopyToClipboard text={value} >
+            <CopyToClipboard text={rowData.userName} >
                 <Button variant="contained" style={{textTransform: "none"}} >
-                    {showdecryptedText? value : "Copy"}
+                    {rowData.showdecryptedText? rowData.userName : "Copy"}
                 </Button>
             </CopyToClipboard>
         </div>
     );
 }
 
-function encryptData(props, rowData) {
-    if (rowData.showdecryptedText) {
-        rowData.userName = props.serverHandler.encryptAES(rowData.userName);
-        rowData.password = props.serverHandler.encryptAES(rowData.password);
-    } else {
-        rowData.userName = props.serverHandler.decryptAES(rowData.userName);
-        rowData.password = props.serverHandler.decryptAES(rowData.password);
+function passwordValueCell(props, rowData) {
+    if (rowData.isPassword === undefined) {
+        rowData.isPasswordDecrypted = !rowData.isPasswordDecrypted;
+        rowData.password = props.encryptionManager.decryptAES(rowData.password);
     }
-    rowData.showdecryptedText = !rowData.showdecryptedText;
-    props.update({key:"updateDashboard", value:!props.updateDashboard}) 
+    return (
+        <div >
+            <CopyToClipboard text={rowData.password} >
+                <Button variant="contained" style={{textTransform: "none"}} >
+                    {rowData.showdecryptedText? rowData.password : "Copy"}
+                </Button>
+            </CopyToClipboard>
+        </div>
+    );
+}
+
+function showData(props, rowData) {
+    if (rowData) {
+        rowData.showdecryptedText = !rowData.showdecryptedText;
+        props.update({ key: "updateDashboard", value: !props.updateDashboard })
+    }
 }
 
 function decryptCell(props, rowData) {
     if (rowData && rowData.showdecryptedText === true) {
         return (
             <div >
-                <Button variant="contained" color="primary" onClick={(e) => encryptData(props, rowData)} >
-                    Encrypt
+                <Button variant="contained" color="primary" onClick={(e) => showData(props, rowData)} >
+                    Hide
                 </Button>
             </div>
         );
     } else {
         return (
             <div >
-                <Button variant="contained" color="secondary" onClick={(e) => encryptData(props, rowData)} >
-                    Decrypt
+                <Button variant="contained" color="secondary" onClick={(e) => showData(props, rowData)} >
+                    Show
                 </Button>
             </div>
         );
@@ -57,21 +72,26 @@ function createStruct(props) {
     return({
         columns: [
             { title: 'Domain',  field: 'domain', render: rowData => domainCell(rowData)},
-            { title: 'User Name', field: 'userName', render: rowData => valueCell(rowData.userName, rowData.showdecryptedText) },
-            { title: 'Password', field: 'password', render: rowData => valueCell(rowData.password, rowData.showdecryptedText) },
+            { title: 'User Name', field: 'userName', render: rowData => userNameValueCell(props, rowData) },
+            { title: 'Password', field: 'password', render: rowData => passwordValueCell(props, rowData) },
             { title: 'Comments', field: 'comment', },
-            { title: 'Encrypt/Decrypt', render: rowData => decryptCell(props, rowData)},
+            { title: 'Show/Hide', render: rowData => decryptCell(props, rowData)},
         ],
         data: props.pmData,
     });
 }
 
-export default function PasswordDashboard(props) {
+export default function PasswordDashboardController(props) {
     const [state, setState] = React.useState(() => createStruct(props));
     return (
-        <div className="dashboard-paper">
+        <div className="dashboard-grid">
             {props.updateDashboard && <div></div>}
-            <MaterialTable className="paper"
+            <MaterialTable
+                options={{
+                    maxBodyHeight: "60vh",
+                    pageSize:10,
+                    pageSizeOptions: [0],
+                  }}
                 title="All Passwords"
                 columns={state.columns}
                 data={state.data}
@@ -81,7 +101,7 @@ export default function PasswordDashboard(props) {
                             setTimeout(() => {
                                 resolve();
                                 newData.showdecryptedText = true;
-                                encryptData(props, newData)
+                                showData(props, newData)
                                 const data = [...state.data];
                                 data.push(newData);
                                 setState({ ...state, data });
@@ -93,7 +113,7 @@ export default function PasswordDashboard(props) {
                             setTimeout(() => {
                                 resolve();
                                 newData.showdecryptedText = true;
-                                encryptData(props, newData)
+                                showData(props, newData)
                                 const data = [...state.data];
                                 data[data.indexOf(oldData)] = newData;
                                 setState({ ...state, data });

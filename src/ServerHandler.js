@@ -1,51 +1,57 @@
 import React from 'react';
-import './App.css';
 
-var CryptoJS = require("crypto-js");
 
 export default class ServerHandler extends React.Component {
 
     constructor(props) {
         super(props);
-        this.props.update({key:"serverHandler", value:this});
-    }
-
-    encryptMD5(str) {
-        return CryptoJS.MD5(str, this.props.mobile).toString();
-    }
-
-    encryptAES(str) {
-        if (this.decryptAES(str) === "") {
-            str = CryptoJS.AES.encrypt(str, this.props.userKey).toString();
+        this.props.update({ key: "serverHandler", value: this });
+        if (this.props.urlDetermined === false) {
+            this.props.update({ key: "urlDetermined", value: !this.props.urlDetermined });
+            this.ping("http://localhost:8080");
         }
-        return str;
     }
 
-    decryptAES(cryptic) {
-        return CryptoJS.AES.decrypt(cryptic, this.props.userKey).toString(CryptoJS.enc.Utf8);
+    ping(url) {
+        fetch(url+ '/ping', {
+            method: 'GET'
+        }).then(response => response.json())
+            .then(response => {
+                if (response.status === "success") {
+                    this.props.update({ key: "prefixUrl", value: url });
+                }
+            });
     }
+
 
     login() {
-        var pass = this.encryptMD5(this.props.userKey);
+        var pass = this.props.encryptionManager.encryptMD5(this.props.userKey);
         fetch(this.props.prefixUrl + '/login', {
             method: 'POST',
             body: JSON.stringify({
                 mobile: this.props.mobile,
                 password: pass,
+                timeStamp: new Date().toString(),
             })
         }).then(response => response.json())
             .then(response => {
                 console.log(response);
                 if (response.status === "success") {
-                    this.props.update({key: "pmData", value: response.data});
-                    this.props.update({key: "authCode", value: response.authCode });
-                    this.props.update({ key: "isLoggedIn", value: true });
-                    this.props.update({ key: "userKey", value: pass})
+                    this.props.update({ key: "userKey", value: pass });
+                    this.props.update({ key: "pmData", value: response.data ? response.data : [] });
+                    this.props.update({ key: "authCode", value: response.authCode });
+                    this.props.update({ key: "currentController", value: "PasswordDashboardController" });
+                    this.props.cookieManager.saveCookie("userName", this.props.mobile);
+                    if (response.adminData) {
+                        this.props.update({ key: "isAdminLoggedIn", value: true });
+                        this.props.update({ key: "adminData", value: response.adminData ? response.adminData : [] });
+                    }
                 } else {
-                    this.props.loginHandler.loginFailed();
+                    this.props.loginController.loginFailed();
                 }
             });
     }
+
 
     query() {
         fetch(this.props.prefixUrl + '/pm/query', {
@@ -53,10 +59,10 @@ export default class ServerHandler extends React.Component {
             body: JSON.stringify({
                 mobile: this.props.mobile,
                 authCode: this.props.authCode,
+                timeStamp: new Date().toString(),
             })
         }).then(response => response.json())
             .then(response => {
-                console.log(response);
             });
     }
 
@@ -68,14 +74,13 @@ export default class ServerHandler extends React.Component {
                 mobile: this.props.mobile,
                 authCode: this.props.authCode,
                 domain: params.domain,
-                userName: this.encryptAES(params.userName),
-                password: this.encryptAES(params.password),
+                userName: this.props.encryptionManager.encryptAES(params.userName),
+                password: this.props.encryptionManager.encryptAES(params.password),
                 comment: params.comment,
                 timeStamp: new Date().toString(),
             })
         }).then(response => response.json())
             .then(response => {
-                console.log(response);
                 params.id = response.create_id;
                 params.mobile = this.props.mobile;
                 params.timeStamp = new Date().toString();
@@ -90,14 +95,13 @@ export default class ServerHandler extends React.Component {
                 authCode: this.props.authCode,
                 mobile: this.props.mobile,
                 domain: params.domain,
-                userName: this.encryptAES(params.userName),
-                password: this.encryptAES(params.password),
+                userName: this.props.encryptionManager.encryptAES(params.userName),
+                password: this.props.encryptionManager.encryptAES(params.password),
                 comment: params.comment,
                 timeStamp: new Date().toString(),
             })
         }).then(response => response.json())
         .then(response => {
-            console.log(response);
         });
     }
 
@@ -112,7 +116,20 @@ export default class ServerHandler extends React.Component {
             })
         }).then(response => response.json())
         .then(response => {
-            console.log(response);
+        });
+    }
+
+    deleteUser(mobile) {
+        fetch(this.props.prefixUrl + '/pm/deleteUser', {
+            method: 'POST',
+            body: JSON.stringify({
+                id: mobile,
+                authCode: this.props.authCode,
+                mobile: this.props.mobile,
+                timeStamp: new Date().toString(),
+            })
+        }).then(response => response.json())
+            .then(response => {
         });
     }
 
