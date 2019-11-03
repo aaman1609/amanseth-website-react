@@ -38,6 +38,7 @@ export default class App extends React.Component {
             isAdminLoggedIn: false,
         };
         this.deleteCurrentUser = this.deleteCurrentUser.bind(this);
+        this.getAdminDashboardLink = this.getAdminDashboardLink.bind(this);
         this.resetBrowser = this.resetBrowser.bind(this);
     }
 
@@ -72,12 +73,11 @@ export default class App extends React.Component {
     }
 
     deleteCurrentUser() {
-        this.state.serverHandler.deleteUser(this.props.mobile);
+        this.state.serverHandler.deleteUser(this.state);
         this.resetBrowser();
     }
 
     resetBrowser = () => {
-        console.log(this);
         this.setState({
             update: this.update,
             currentController: "LoginController",

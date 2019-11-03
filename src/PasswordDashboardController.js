@@ -100,12 +100,18 @@ export default function PasswordDashboardController(props) {
                         new Promise(resolve => {
                             setTimeout(() => {
                                 resolve();
-                                newData.showdecryptedText = true;
-                                showData(props, newData)
-                                const data = [...state.data];
-                                data.push(newData);
-                                setState({ ...state, data });
-                                props.serverHandler.insert(newData);
+                                if (newData.domain && newData.userName && newData.password) {
+                                    if (!newData.comment) {
+                                        newData.comment = "";
+                                    }
+                                    newData.showdecryptedText = true;
+                                    showData(props, newData)
+                                    const data = [...state.data];
+                                    data.push(newData);
+                                    setState({ ...state, data });
+                                    props.serverHandler.insert(newData);
+                                }
+
                             }, 100);
                         }),
                     onRowUpdate: (newData, oldData) =>

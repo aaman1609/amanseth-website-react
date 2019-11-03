@@ -35,7 +35,6 @@ export default class ServerHandler extends React.Component {
             })
         }).then(response => response.json())
             .then(response => {
-                console.log(response);
                 if (response.status === "success") {
                     this.props.update({ key: "userKey", value: pass });
                     this.props.update({ key: "pmData", value: response.data ? response.data : [] });
@@ -119,11 +118,11 @@ export default class ServerHandler extends React.Component {
         });
     }
 
-    deleteUser(mobile) {
+    deleteUser(params) {
         fetch(this.props.prefixUrl + '/pm/deleteUser', {
             method: 'POST',
             body: JSON.stringify({
-                id: mobile,
+                id: params.mobile,
                 authCode: this.props.authCode,
                 mobile: this.props.mobile,
                 timeStamp: new Date().toString(),
