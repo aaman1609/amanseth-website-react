@@ -13,7 +13,7 @@ export default class ServerHandler extends React.Component {
     }
 
     ping(url) {
-        fetch(url+ '/ping', {
+        fetch(url + '/ping', {
             method: 'GET'
         }).then(response => response.json())
             .then(response => {
@@ -73,8 +73,8 @@ export default class ServerHandler extends React.Component {
                 mobile: this.props.mobile,
                 authCode: this.props.authCode,
                 domain: params.domain,
-                userName: this.props.encryptionManager.encryptAES(params.userName),
-                password: this.props.encryptionManager.encryptAES(params.password),
+                userName: params.userName,
+                password: params.password,
                 comment: params.comment,
                 timeStamp: new Date().toString(),
             })
@@ -83,7 +83,7 @@ export default class ServerHandler extends React.Component {
                 params.id = response.create_id;
                 params.mobile = this.props.mobile;
                 params.timeStamp = new Date().toString();
-        });
+            });
     }
 
     update(params) {
@@ -94,14 +94,14 @@ export default class ServerHandler extends React.Component {
                 authCode: this.props.authCode,
                 mobile: this.props.mobile,
                 domain: params.domain,
-                userName: this.props.encryptionManager.encryptAES(params.userName),
-                password: this.props.encryptionManager.encryptAES(params.password),
+                userName: params.userName,
+                password: params.password,
                 comment: params.comment,
                 timeStamp: new Date().toString(),
             })
         }).then(response => response.json())
-        .then(response => {
-        });
+            .then(response => {
+            });
     }
 
     delete(params) {
@@ -114,8 +114,8 @@ export default class ServerHandler extends React.Component {
                 timeStamp: new Date().toString(),
             })
         }).then(response => response.json())
-        .then(response => {
-        });
+            .then(response => {
+            });
     }
 
     deleteUser(params) {
@@ -129,7 +129,7 @@ export default class ServerHandler extends React.Component {
             })
         }).then(response => response.json())
             .then(response => {
-        });
+            });
     }
 
     render() {

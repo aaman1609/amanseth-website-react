@@ -1,5 +1,4 @@
 import React from 'react';
-
 var CryptoJS = require("crypto-js");
 
 export default class EncryptionManager extends React.Component {
@@ -21,11 +20,16 @@ export default class EncryptionManager extends React.Component {
     }
 
     decryptAES(cryptic) {
-        var str = CryptoJS.AES.decrypt(cryptic, this.props.userKey).toString(CryptoJS.enc.Utf8);
-        if (str === "") {
-            return cryptic ;
+        try {
+            var str = CryptoJS.AES.decrypt(cryptic, this.props.userKey).toString(CryptoJS.enc.Utf8);
+            if (str === "") {
+                return cryptic;
+            }
+            return str;
+        } catch (e) {
+            console.log(e);
         }
-        return str;
+        return cryptic;
     }
 
     render() {

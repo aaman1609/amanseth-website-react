@@ -10,15 +10,12 @@ function domainCell(rowData) {
 }
 
 function userNameValueCell(props, rowData) {
-    if (rowData.isUserNameDecrypted === undefined) {
-        rowData.isUserNameDecrypted = !rowData.isUserNameDecrypted;
-        rowData.userName = props.encryptionManager.decryptAES(rowData.userName);
-    }
+    rowData.decryptedUserName = props.encryptionManager.decryptAES(rowData.userName);
     return (
         <div >
-            <CopyToClipboard text={rowData.userName} >
+            <CopyToClipboard text={rowData.decryptedUserName} >
                 <Button variant="contained" style={{textTransform: "none"}} >
-                    {rowData.showdecryptedText? rowData.userName : "Copy"}
+                    {rowData.showdecryptedText? rowData.decryptedUserName : "Copy"}
                 </Button>
             </CopyToClipboard>
         </div>
@@ -26,15 +23,12 @@ function userNameValueCell(props, rowData) {
 }
 
 function passwordValueCell(props, rowData) {
-    if (rowData.isPassword === undefined) {
-        rowData.isPasswordDecrypted = !rowData.isPasswordDecrypted;
-        rowData.password = props.encryptionManager.decryptAES(rowData.password);
-    }
+    rowData.decryptedPassword = props.encryptionManager.decryptAES(rowData.password);
     return (
         <div >
-            <CopyToClipboard text={rowData.password} >
+            <CopyToClipboard text={rowData.decryptedPassword} >
                 <Button variant="contained" style={{textTransform: "none"}} >
-                    {rowData.showdecryptedText? rowData.password : "Copy"}
+                    {rowData.showdecryptedText? rowData.decryptedPassword : "Copy"}
                 </Button>
             </CopyToClipboard>
         </div>
@@ -72,8 +66,8 @@ function createStruct(props) {
     return({
         columns: [
             { title: 'Domain',  field: 'domain', render: rowData => domainCell(rowData)},
-            { title: 'User Name', field: 'userName', render: rowData => userNameValueCell(props, rowData) },
-            { title: 'Password', field: 'password', render: rowData => passwordValueCell(props, rowData) },
+            { title: 'User Name', field: 'decryptedUserName', render: rowData => userNameValueCell(props, rowData) },
+            { title: 'Password', field: 'decryptedPassword', render: rowData => passwordValueCell(props, rowData) },
             { title: 'Comments', field: 'comment', },
             { title: 'Show/Hide', render: rowData => decryptCell(props, rowData)},
         ],
@@ -100,10 +94,12 @@ export default function PasswordDashboardController(props) {
                         new Promise(resolve => {
                             setTimeout(() => {
                                 resolve();
-                                if (newData.domain && newData.userName && newData.password) {
+                                if (newData.domain && newData.decryptedUserName && newData.decryptedPassword) {
                                     if (!newData.comment) {
                                         newData.comment = "";
                                     }
+                                    newData.userName = props.encryptionManager.encryptAES(newData.decryptedUserName);
+                                    newData.password = props.encryptionManager.encryptAES(newData.decryptedPassword);
                                     newData.showdecryptedText = true;
                                     showData(props, newData)
                                     const data = [...state.data];
@@ -118,6 +114,8 @@ export default function PasswordDashboardController(props) {
                         new Promise(resolve => {
                             setTimeout(() => {
                                 resolve();
+                                newData.userName = props.encryptionManager.encryptAES(newData.decryptedUserName);
+                                newData.password = props.encryptionManager.encryptAES(newData.decryptedPassword);
                                 newData.showdecryptedText = true;
                                 showData(props, newData)
                                 const data = [...state.data];
